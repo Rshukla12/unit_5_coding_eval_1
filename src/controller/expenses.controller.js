@@ -78,6 +78,31 @@ const getExpenseByEmployee = async (req, res) => {
 };
 
 
+const getExpenseByType = async (req, res) => {
+    try {
+        let sort = req.query.sort || "asc";
+        sort = sort === "asc" ? 1 : -1;
+        const expenses = await Expense.aggregate([{$group: {_id: "$type", count: { $sum: 1 }} }, {$sort: {count: sort}}]);
+        if ( !expenses || !expenses.length ) return res.status(404).json({msg: "No expense of these type!"});
+        res.status(200).json({staus: "success", data: expenses});
+    } catch ( err ) {
+        console.log(err);
+        res.status(500).json({status: "failure", msg: "Something went wrong!"});
+    }
+};
+
+const getAvgTime = async (req, res) => {
+    try {
+        const expenses = await Expense.aggregate([{$project: { $avg: { $sum: 1 }} }, {$sort: {count: sort}}]);
+        if ( !expenses || !expenses.length ) return res.status(404).json({msg: "No expense of these type!"});
+        res.status(200).json({staus: "success", data: expenses});
+    } catch ( err ) {
+        console.log(err);
+        res.status(500).json({status: "failure", msg: "Something went wrong!"});
+    }
+};
+
+
 //     body('reimbursed').isBoolean().withMessage("Reimbursed can only be boolean value!"),
 
 
@@ -85,5 +110,6 @@ module.exports = {
     createNewExpense,
     reimburseExpense,
     getAllExpense,
-    getExpenseByEmployee
+    getExpenseByEmployee,
+    getExpenseByType
 };

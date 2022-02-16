@@ -9,12 +9,13 @@ const expenseController = require("../controller/expenses.controller");
 const router = express.Router();
 
 router.get("/", expenseController.getAllExpense);
+router.get("/type", expenseController.getExpenseByType);
 router.get("/:employee_id", expenseController.getExpenseByEmployee);
 router.post("/", ...validator, validatorMiddleware, expenseController.createNewExpense);
 router.post("/:expense_id", 
             body('reimbursed').notEmpty().withMessage("Reimbursed is required").isBoolean().withMessage("Reimbursed can only be boolean"), 
             validatorMiddleware, 
             expenseController.reimburseExpense
-    );
+);
 
 module.exports = router;

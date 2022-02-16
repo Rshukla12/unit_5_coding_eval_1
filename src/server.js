@@ -2,12 +2,13 @@ const express = require("express");
 const { config } = require("nodemon");
 const connect = require("./config/db.config");
 
+const expenseRouter = require("./route/expenses.route"); 
+
 const app = express();
 const PORT = 3000;
 
-app.use("/", (req, res) => {
-    res.status(200).json({msg: "Hi!"});
-});
+app.use(express.json());
+app.use("/", expenseRouter);
 
 const start = async () => {
     try {

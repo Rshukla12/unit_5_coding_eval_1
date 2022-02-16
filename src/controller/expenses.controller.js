@@ -3,9 +3,21 @@ const Expense = require("../model/expense.model");
 
 const getAllExpense = async (req, res) => {
     try {
-        // const page =
-
+        const page = req.query.page || 1;
+        const perPage = req.query.per_page || 5;
+        const skip = page <= 0 ? 0 : ( page - 1 ) * perPage;
+        const sort = req.query.sort || "asc";
+        
+        const start_date = new Date(req.params.start || 0);
+        const end_date = new Date(req.params.end || "2040");
+        
+        const expenses = await Expense.find({
+            date: {$gte: start_date, $lte: end_date}
+        }).sort({expense_date: sort}).skip(skip).limit(perPage);
+        if ( !expenses ) return res.status(404).json({msg: "No expenses were made at that time!"});
+        res.status(200).json({staus: "success", data: expenses});
     } catch ( err ) {
+        console.log(err);
         res.status(500).json({status: "failure", msg: "Something went wrong!"});
     }
 };
@@ -50,10 +62,28 @@ const reimburseExpense = async (req, res) => {
     }
 };
 
+const getExpenseByEmployee = async (req, res) => {
+    try {
+        const page = req.query.page || 1;
+        const perPage = req.query.per_page || 5;
+        const skip = page <= 0 ? 0 : ( page - 1 ) * perPage;
+        const sort = req.query.sort || "asc";
+        
+        const expenses = await Expense.find({employee_id: req.params.employee_id}).sort({expense_date: sort}).skip(skip).limit(perPage);
+        if ( !expenses || !expenses.length ) return res.status(404).json({msg: "No expense made by employee!"});
+        res.status(200).json({staus: "success", data: expenses});
+    } catch ( err ) {
+        res.status(500).json({status: "failure", msg: "Something went wrong!"});
+    }
+};
+
+
 //     body('reimbursed').isBoolean().withMessage("Reimbursed can only be boolean value!"),
 
 
 module.exports = {
     createNewExpense,
-    reimburseExpense
+    reimburseExpense,
+    getAllExpense,
+    getExpenseByEmployee
 };

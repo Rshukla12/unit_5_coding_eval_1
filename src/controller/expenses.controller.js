@@ -93,8 +93,7 @@ const getExpenseByType = async (req, res) => {
 
 const getAvgTime = async (req, res) => {
     try {
-        const expenses = await Expense.aggregate([{$project: { $avg: { $sum: 1 }} }, {$sort: {count: sort}}]);
-        if ( !expenses || !expenses.length ) return res.status(404).json({msg: "No expense of these type!"});
+        const expenses = await Expense.aggregate([{ $group: { _id: null, avgTime: { $avg: '$reimbursed_date - $expense_date' }}} ]);
         res.status(200).json({staus: "success", data: expenses});
     } catch ( err ) {
         console.log(err);
@@ -103,13 +102,11 @@ const getAvgTime = async (req, res) => {
 };
 
 
-//     body('reimbursed').isBoolean().withMessage("Reimbursed can only be boolean value!"),
-
-
 module.exports = {
     createNewExpense,
     reimburseExpense,
     getAllExpense,
     getExpenseByEmployee,
-    getExpenseByType
+    getExpenseByType,
+    getAvgTime
 };
